@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        background: #333;
+      }
+      .bubble {
+        position: absolute;
+        animation-timing-function: linear;
+        animation-name: floating;
+        animation-iteration-count: infinite;
+        border-radius: 50%;
+      }
+
+      @keyframes floating {
+        0% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+        100% {
+          transform: translateY(0px);
+        }
+      }
+      .bubble:hover {
+        animation-name: hoverFloating;
+        z-index: 5;
+      }
+      @keyframes hoverFloating {
+        0% {
+          transform: scale(4)
+        }
+        100% {
+          transform: scale(4)
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id='container' style="width: 100%;height: 100%;position: absolute;"></div>
+	  <canvas id='canvas'></canvas>
+  </body>
+</html>
+<script>
+  window.onload = function () {
+    // 第一步：将图片绘制到canvas中
+    var canvas = document.getElementById("canvas");
+    var ctx = canvas.getContext("2d");
+    var image = new Image();
+    image.src = "dragon.jpg";
+    image.onload = function () {
+      canvas.width = image.width;
+      canvas.height = image.height;
+      ctx.drawImage(image, 0, 0);
+
+      // 第二步：获取并裁剪画布的点阵信息
+      var imageData = ctx.getImageData(0, 0, image.width, image.height).data;
+  
+      // ctx.fillStyle = "#fff";
+      // ctx.fillRect(0, 0, image.width, image.height);
+      ctx.clearRect(0, 0, image.width, image.height);
+    
+      var gap = 10;
+      // for (var h = 0; h < image.height; h += gap) {
+      //   for (var w = 0; w < image.width; w += gap) {
+      //     var position = (image.width * h + w) * 4;
+      //     var r = imageData[position];
+      //     var g = imageData[position + 1];
+      //     var b = imageData[position + 2];
+    
+      //     if (r + g + b == 0) {
+      //       ctx.fillStyle = "#000";
+      //       ctx.fillRect(w, h, 4, 4);
+      //     }
+      //   }
+      // }
+      // 第三步：通过点阵信息生成气泡dom
+      var dragonContainer = document.getElementById("container");
+      var dragonScale = 2;
+      console.log(imageData)
+      var imgList = ["fuchuang.png","bubble.png"]
+      var imgKey = 0
+      for (var h = 0; h < image.height; h += gap) {
+        for (var w = 0; w < image.width; w += gap) {
+          var position = (image.width * h + w) * 4;
+          var r = imageData[position],
+            g = imageData[position + 1],
+            b = imageData[position + 2];
+    
+          if (r + g + b == 0) {
+            var bubble = document.createElement("img");
+            bubble.src = imgList[imgKey] || "bubble.png"
+            bubble.setAttribute("class", "bubble");
+    
+            var bubbleSize = Math.random() * 10 + 20;
+            bubble.style.left = w * dragonScale - bubbleSize / 2 + "px";
+            bubble.style.top = h * dragonScale - bubbleSize / 2 + "px";
+            bubble.style.width = bubble.style.height = bubbleSize + "px";
+            bubble.style.animationDuration = Math.random() * 6 + 4 + "s";
+    
+            dragonContainer.appendChild(bubble);
+            imgKey += 1
+          }
+        }
+      }
+    };
+  };
+</script>
